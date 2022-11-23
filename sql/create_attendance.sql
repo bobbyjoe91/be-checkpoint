@@ -4,9 +4,3 @@ CREATE TABLE Attendance (
   time_in TIME NOT NULL,
   time_out TIME NOT NULL
 );
-
-ALTER TABLE Attendance ADD employee_id INT;
-
-ALTER TABLE Attendance ADD
-CONSTRAINT fk_employee_id
-  FOREIGN KEY (employee_id) REFERENCES Employee(employee_id);

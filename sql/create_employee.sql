@@ -13,3 +13,9 @@ CREATE TABLE Employee (
   FOREIGN KEY (division_id) REFERENCES Division(division_id),
   FOREIGN KEY (attendance_id) REFERENCES Attendance(attendance_id)
 );
+
+ALTER TABLE Attendance ADD employee_id INT;
+
+ALTER TABLE Attendance ADD
+CONSTRAINT fk_employee_id
+  FOREIGN KEY (employee_id) REFERENCES Employee(employee_id);
