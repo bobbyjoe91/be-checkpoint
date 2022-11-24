@@ -18,8 +18,10 @@ async function getAttendancesById(req, res) {
 
     // filter by start and end date if both exist
     if (req.query.start_date && req.query.end_date) {
-      sqlCommand += ' AND date >= ? AND date <= ?';
+      sqlCommand += ' AND date >= ? AND date <= ?;';
       args.push(req.query.start_date, req.query.end_date);
+    } else {
+      sqlCommand += ' AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE());';
     }
 
     const result = await executeQuery(checkPointDB, sqlCommand, args);
