@@ -5,5 +5,6 @@ const router = express.Router();
 const indexController = require('../controllers/index');
 
 router.get('/', indexController.index);
+router.get('/attendances/:employeeId', indexController.getAttendancesById);
 
 module.exports = router;

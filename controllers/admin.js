@@ -12,8 +12,7 @@ async function getAllAttendances(req, res) {
       checkPointDB,
       `
         SELECT
-          A.attendance_id, E.employee_id, E.name, E.email,
-          TIMESTAMP(A.date, A.time_in) AS time_in, TIMESTAMP(A.date, A.time_out) AS time_out
+          A.attendance_id, E.employee_id, E.name, E.email, A.date, A.time_in, A.time_out
         FROM Attendance A
         INNER JOIN Employee E ON A.employee_id = E.employee_id;
       `
@@ -24,7 +23,10 @@ async function getAllAttendances(req, res) {
       data: results
     });
   } catch (error) {
-    res.status(500).json({ message: error });
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
   }
 }
 
