@@ -7,4 +7,11 @@ function encodePassword(password) {
   return `${encoded}:${key}`;
 }
 
-module.exports = { encodePassword };
+function validate(password, hash) {
+  const [encoded, key] = hash.split(':');
+  const hashedPasswordInput = crypto.createHash('sha256').update(key + password).digest('hex');
+
+  return hashedPasswordInput === encoded;
+}
+
+module.exports = { encodePassword, validate };

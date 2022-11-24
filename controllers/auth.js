@@ -1,5 +1,5 @@
 const { checkPointDB, executeQuery } = require('../utils/db');
-const { encodePassword } = require('../utils/hash');
+const { encodePassword, validate } = require('../utils/hash');
 
 function index(req, res) {
   res.status(200).json({
@@ -40,8 +40,47 @@ async function register(req, res) {
   }
 }
 
-function resetPassword(req, res) {
-  
+async function resetPassword(req, res) {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+
+    // get hashed pass
+    const storedHash = await executeQuery(
+      checkPointDB,
+      `SELECT password FROM Employee WHERE email = ?`,
+      [email]
+    );
+
+    // validate old password
+    const isOldMatch = validate(oldPassword, storedHash[0].password);
+
+    // if matched, change password
+    if (isOldMatch) {
+      const newEncoded = encodePassword(newPassword);
+
+      // update hash in DB
+      await executeQuery(
+        checkPointDB,
+        `UPDATE Employee SET password = ? WHERE email = ?`,
+        [newEncoded, email]
+      );
+
+      res.status(200).json({
+        message: 'success',
+        data: 'Password has been changed',
+      });
+    } else {
+      res.status(500).json({
+        message: 'error',
+        data: 'Wrong password',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
+  }
 }
 
 module.exports = {
