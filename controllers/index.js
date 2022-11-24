@@ -38,7 +38,35 @@ async function getAttendancesById(req, res) {
   }
 }
 
+async function getEmployeeById(req, res) {
+  try {
+    const { employeeId } = req.params;
+    const args = [employeeId];
+    let sqlCommand = `
+      SELECT
+        E.employee_id, E.name, E.email, E.phone_number, E.photo_url, P.position_name, D.division_name
+      FROM
+        (SELECT * FROM Employee WHERE employee_id = ?) AS E
+        INNER JOIN Positions P ON E.position_id = P.position_id
+        INNER JOIN Division D ON E.division_id = D.division_id
+    `;
+
+    const result = await executeQuery(checkPointDB, sqlCommand, args);
+
+    res.status(200).json({
+      message: 'success',
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
+  }
+}
+
 module.exports = {
   index,
-  getAttendancesById
+  getAttendancesById,
+  getEmployeeById,
 };
