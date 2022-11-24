@@ -1,3 +1,4 @@
+const dayjs = require('dayjs');
 const { checkPointDB, executeQuery } = require('../utils/db');
 
 function index(req, res) {
@@ -44,7 +45,7 @@ async function getEmployeeById(req, res) {
     const args = [employeeId];
     let sqlCommand = `
       SELECT
-        E.employee_id, E.name, E.email, E.phone_number, E.photo_url, P.position_name, D.division_name
+        E.employee_id, E.name, E.email, E.phone_number, E.photo_url, P.position_name, D.division_name, E.attendance_id
       FROM
         (SELECT * FROM Employee WHERE employee_id = ?) AS E
         INNER JOIN Positions P ON E.position_id = P.position_id
@@ -65,8 +66,71 @@ async function getEmployeeById(req, res) {
   }
 }
 
+async function setClockStatus(req, res) {
+  try {
+    const { employeeId, attendanceId } = req.body;
+    const { status } = req.query;
+
+    const timeStamp = dayjs();
+
+    if (status === 'in' && employeeId) {
+      const currentDate = timeStamp.format('YYYY-MM-DD');
+      const timeIn = timeStamp.format('HH:mm:ss');
+
+      const clockInResponse = await executeQuery(
+        checkPointDB,
+        `INSERT INTO Attendance (date, time_in, employee_id) VALUES (?, ?, ?)`,
+        [currentDate, timeIn, employeeId]
+      );
+
+      // update employee's attendance ID
+      await executeQuery(
+        checkPointDB,
+        `UPDATE Employee SET attendance_id = ? WHERE employee_id = ?`,
+        [clockInResponse.insertId, employeeId]
+      );
+
+      res.status(200).json({
+        message: 'success',
+        data: 'clock in success',
+      });
+    } else if (status === 'out' && attendanceId && employeeId) {
+      const timeOut = timeStamp.format('HH:mm:ss');
+
+      await executeQuery(
+        checkPointDB,
+        `UPDATE Attendance SET time_out = ? WHERE attendance_id = ?`,
+        [timeOut, attendanceId]
+      );
+
+      // revoke employee's attendance ID
+      await executeQuery(
+        checkPointDB,
+        `UPDATE Employee SET attendance_id = NULL WHERE employee_id = ?`,
+        [employeeId]
+      );
+
+      res.status(200).json({
+        message: 'success',
+        data: 'clock out success',
+      });
+    } else {
+      res.status(500).json({
+        message: 'error',
+        data: 'Invalid clock status',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
+  }
+}
+
 module.exports = {
   index,
   getAttendancesById,
   getEmployeeById,
+  setClockStatus,
 };
