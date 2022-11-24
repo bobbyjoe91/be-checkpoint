@@ -30,7 +30,35 @@ async function getAllAttendances(req, res) {
   }
 }
 
+async function editEmployee(req, res) {
+  try {
+    const { employeeId } = req.params;
+    const { name, email, phoneNumber, photoUrl, positionId, divisionId } = req.body;
+
+    await executeQuery(
+      checkPointDB,
+      `
+        UPDATE Employee
+        SET name = ?, email = ?, phone_number = ?, photo_url = ?, position_id = ?, division_id = ?
+        WHERE employee_id = ?
+      `,
+      [name, email, phoneNumber, photoUrl, positionId, divisionId, employeeId]
+    );
+
+    res.status(200).json({
+      message: 'success',
+      data: `Employee #${employeeId} has been edited`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
+  }
+}
+
 module.exports = {
   index,
+  editEmployee,
   getAllAttendances,
 };
