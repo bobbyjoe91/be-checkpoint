@@ -7,8 +7,45 @@ function index(req, res) {
   });
 }
 
-function login(req, res) {
+async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+    const result = await executeQuery(
+      checkPointDB,
+      `SELECT password FROM Employee WHERE email = ?`,
+      [email]
+    );
 
+    if (result.length === 0) {
+      res.status(500).json({
+        message: 'error',
+        data: 'Login failed. Please re-check your email or password',
+      });
+
+      return;
+    }
+
+    const hashedPassword = result[0].password;
+
+    const isMatch = validate(password, hashedPassword);
+    if (isMatch) {
+      // TODO: send token to client
+      res.status(200).json({
+        message: 'success',
+        data: 'Login success',
+      });
+    } else {
+      res.status(500).json({
+        message: 'error',
+        data: 'Login failed. Please re-check your email or password',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
+  }
 }
 
 async function register(req, res) {
@@ -50,6 +87,15 @@ async function resetPassword(req, res) {
       `SELECT password FROM Employee WHERE email = ?`,
       [email]
     );
+
+    if (storedHash.length === 0) {
+      res.status(500).json({
+        message: 'error',
+        data: 'Employee does not exist',
+      });
+
+      return;
+    }
 
     // validate old password
     const isOldMatch = validate(oldPassword, storedHash[0].password);
