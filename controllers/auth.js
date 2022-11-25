@@ -19,7 +19,7 @@ async function login(req, res) {
     if (result.length === 0) {
       res.status(500).json({
         message: 'error',
-        data: 'Login failed. Please re-check your email or password',
+        data: 'Email atau password salah',
       });
 
       return;
@@ -37,7 +37,7 @@ async function login(req, res) {
     } else {
       res.status(403).json({
         message: 'error',
-        data: 'Login failed. Please re-check your email or password',
+        data: 'Email atau password salah',
       });
     }
   } catch (error) {
