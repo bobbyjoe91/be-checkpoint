@@ -35,7 +35,7 @@ async function login(req, res) {
         data: 'Login success',
       });
     } else {
-      res.status(500).json({
+      res.status(403).json({
         message: 'error',
         data: 'Login failed. Please re-check your email or password',
       });
