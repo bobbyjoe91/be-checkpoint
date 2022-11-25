@@ -29,10 +29,24 @@ async function login(req, res) {
 
     const isMatch = validate(password, hashedPassword);
     if (isMatch) {
-      // TODO: send token to client
+      // get user data
+      const userData = await executeQuery(
+        checkPointDB,
+        `
+          SELECT
+            E.employee_id, E.name, E.position_id, E.division_id, E.phone_number, E.photo_url,
+            P.position_name, D.division_name, E.attendance_id
+          FROM
+            (SELECT * FROM Employee WHERE email = ?) AS E
+            INNER JOIN Positions P ON E.position_id = P.position_id
+            INNER JOIN Division D ON E.division_id = D.division_id
+        `,
+        [email]
+      );
+
       res.status(200).json({
         message: 'success',
-        data: 'Login success',
+        data: userData[0],
       });
     } else {
       res.status(403).json({
