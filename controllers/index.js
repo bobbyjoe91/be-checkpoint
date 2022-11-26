@@ -24,6 +24,12 @@ async function getAttendancesById(req, res) {
     if (req.query.start_date && req.query.end_date) {
       sqlCommand += ' AND date >= ? AND date <= ? ORDER BY A.attendance_id DESC;';
       args.push(req.query.start_date, req.query.end_date);
+    } else if (req.query.start_date) {
+      sqlCommand += ' AND date >= ? ORDER BY A.attendance_id DESC;';
+      args.push(req.query.start_date);
+    } else if (req.query.end_date) {
+      sqlCommand += ' AND date <= ? ORDER BY A.attendance_id DESC;';
+      args.push(req.query.end_date);
     } else {
       sqlCommand += ' AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) ORDER BY A.attendance_id DESC;';
     }
