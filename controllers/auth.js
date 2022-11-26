@@ -79,13 +79,13 @@ async function register(req, res) {
 
 async function resetPassword(req, res) {
   try {
-    const { email, oldPassword, newPassword } = req.body;
+    const { employeeId, oldPassword, newPassword } = req.body;
 
     // get hashed pass
     const storedHash = await executeQuery(
       checkPointDB,
-      `SELECT password FROM Employee WHERE email = ?`,
-      [email]
+      `SELECT password FROM Employee WHERE employee_id = ?`,
+      [employeeId]
     );
 
     if (storedHash.length === 0) {
@@ -107,18 +107,18 @@ async function resetPassword(req, res) {
       // update hash in DB
       await executeQuery(
         checkPointDB,
-        `UPDATE Employee SET password = ? WHERE email = ?`,
-        [newEncoded, email]
+        `UPDATE Employee SET password = ? WHERE employee_id = ?`,
+        [newEncoded, employeeId]
       );
 
       res.status(200).json({
         message: 'success',
-        data: 'Password has been changed',
+        data: 'Password berhasil diubah',
       });
     } else {
       res.status(500).json({
         message: 'error',
-        data: 'Wrong password',
+        data: 'Password salah',
       });
     }
   } catch (error) {
