@@ -92,7 +92,9 @@ async function setClockStatus(req, res) {
 
       res.status(200).json({
         message: 'success',
-        data: 'Clock in success',
+        data: {
+          attendanceId: clockInResponse.insertId
+        },
       });
     } else if (status === 'out' && attendanceId && employeeId) {
       const timeOut = timeStamp.format('HH:mm:ss');
@@ -112,7 +114,7 @@ async function setClockStatus(req, res) {
 
       res.status(200).json({
         message: 'success',
-        data: 'Clock out success',
+        data: { attendanceId: null },
       });
     } else {
       res.status(500).json({
