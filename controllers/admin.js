@@ -12,9 +12,13 @@ async function getAllAttendances(req, res) {
       checkPointDB,
       `
         SELECT
-          A.attendance_id, E.employee_id, E.name, E.email, A.date, A.time_in, A.time_out
+          A.attendance_id, E.employee_id,
+          E.name, E.email,
+          DATE_FORMAT(A.date, '%Y-%m-%d') as date,
+          A.time_in, A.time_out
         FROM Attendance A
-        INNER JOIN Employee E ON A.employee_id = E.employee_id;
+        INNER JOIN Employee E ON A.employee_id = E.employee_id
+        ORDER BY A.attendance_id DESC;
       `
     );
 
