@@ -1,5 +1,8 @@
+const path = require('path');
 const dayjs = require('dayjs');
+
 const { checkPointDB, executeQuery } = require('../utils/db');
+const { encodePassword } = require('../utils/hash');
 
 function index(req, res) {
   res.status(200).json({
@@ -139,9 +142,37 @@ async function setClockStatus(req, res) {
   }
 }
 
+async function register(req, res) {
+  try {
+    const { file, body } = req;
+    let newEmployee = {
+      name: body.name,
+      email: body.email,
+      phone_number: body.phoneNumber,
+      position_id: body.positionId,
+      division_id: body.divisionId,
+      password: encodePassword(body.password),
+      photo_url: `http://localhost:8000/${file.path}`,
+    };
+
+    await executeQuery( checkPointDB, `INSERT INTO Employee SET ?`, newEmployee);
+
+    res.status(200).json({
+      message: 'success',
+      data: 'Register success',
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
+  }
+}
+
 module.exports = {
   index,
   getAttendancesById,
   getEmployeeById,
+  register,
   setClockStatus,
 };
