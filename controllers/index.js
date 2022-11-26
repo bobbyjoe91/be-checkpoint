@@ -152,7 +152,7 @@ async function register(req, res) {
       position_id: body.positionId,
       division_id: body.divisionId,
       password: encodePassword(body.password),
-      photo_url: `http://localhost:8000/${file.path}`,
+      photo_url: file ? `http://localhost:8000/${file.path}` : null,
     };
 
     await executeQuery( checkPointDB, `INSERT INTO Employee SET ?`, newEmployee);
