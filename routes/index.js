@@ -15,5 +15,6 @@ router.post('/clock', indexController.setClockStatus);
 router.get('/employee/:employeeId', indexController.getEmployeeById);
 
 router.post('/register', field, indexController.register);
+router.post('/edit/:employee_id', field, indexController.editEmployee);
 
 module.exports = router;

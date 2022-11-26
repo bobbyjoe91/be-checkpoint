@@ -169,7 +169,38 @@ async function register(req, res) {
   }
 }
 
+async function editEmployee(req, res) {
+  try {
+    const { file, body, params } = req;
+    const photoUrl = file ? `http://localhost:8000/${file.path}` : null
+    let sqlQuery = `UPDATE Employee SET phone_number = ?`;
+    let args = [body.phoneNumber]
+
+    if (photoUrl) {
+      sqlQuery += ', photo_url = ?'
+      args.push(photoUrl);
+    }
+
+    await executeQuery(
+      checkPointDB,
+      sqlQuery + ' WHERE employee_id = ?',
+      [...args, params.employee_id]
+    );
+
+    res.status(200).json({
+      message: 'success',
+      data: 'Edit success',
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'error',
+      data: error.toString(),
+    });
+  }
+}
+
 module.exports = {
+  editEmployee,
   index,
   getAttendancesById,
   getEmployeeById,
