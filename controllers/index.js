@@ -12,17 +12,20 @@ async function getAttendancesById(req, res) {
     const { employeeId } = req.params;
     const args = [employeeId];
     let sqlCommand = `
-      SELECT A.attendance_id, A.date, A.time_in, A.time_out
+      SELECT
+        A.attendance_id,
+        DATE_FORMAT(A.date, '%Y-%m-%d') as date,
+        A.time_in, A.time_out
       FROM Attendance A
       WHERE A.employee_id = ?
     `;
 
     // filter by start and end date if both exist
     if (req.query.start_date && req.query.end_date) {
-      sqlCommand += ' AND date >= ? AND date <= ?;';
+      sqlCommand += ' AND date >= ? AND date <= ? ORDER BY A.attendance_id DESC;';
       args.push(req.query.start_date, req.query.end_date);
     } else {
-      sqlCommand += ' AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE());';
+      sqlCommand += ' AND MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE()) ORDER BY A.attendance_id DESC;';
     }
 
     const result = await executeQuery(checkPointDB, sqlCommand, args);
