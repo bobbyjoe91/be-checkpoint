@@ -57,7 +57,9 @@ async function getEmployeeById(req, res) {
     const args = [employeeId];
     let sqlCommand = `
       SELECT
-        E.employee_id, E.name, E.email, E.phone_number, E.photo_url, P.position_name, D.division_name, E.attendance_id
+        E.employee_id, E.name, E.email, E.phone_number, E.photo_url,
+        P.position_name, P.position_id, D.division_name, D.division_id,
+        E.attendance_id
       FROM
         (SELECT * FROM Employee WHERE employee_id = ?) AS E
         INNER JOIN Positions P ON E.position_id = P.position_id
