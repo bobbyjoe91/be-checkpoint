@@ -36,18 +36,25 @@ async function getAllAttendances(req, res) {
 
 async function editEmployee(req, res) {
   try {
+    const { file, body } = req;
     const { employeeId } = req.params;
-    const { name, email, phoneNumber, photoUrl, positionId, divisionId } = req.body;
 
-    await executeQuery(
-      checkPointDB,
-      `
-        UPDATE Employee
-        SET name = ?, email = ?, phone_number = ?, photo_url = ?, position_id = ?, division_id = ?
-        WHERE employee_id = ?
-      `,
-      [name, email, phoneNumber, photoUrl, positionId, divisionId, employeeId]
-    );
+    const { name, email, phoneNumber, positionId, divisionId } = body;
+
+    let sqlCommand = 'UPDATE Employee SET name = ?, email = ?, phone_number = ?, position_id = ?, division_id = ?';
+    let args = [name, email, phoneNumber, positionId, divisionId];
+
+    const photoUrl = file ? `http://localhost:8000/${file.path}` : null
+
+    if (photoUrl) {
+      sqlCommand += ', photo_url = ?';
+      args.push(photoUrl);
+    }
+
+    sqlCommand += ' WHERE employee_id = ?';
+    args.push(employeeId);
+
+    await executeQuery(checkPointDB, sqlCommand, args);
 
     res.status(200).json({
       message: 'success',
